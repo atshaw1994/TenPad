@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TenPad": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\aaron\\Downloads\\cedit\\license.txt"
+    }
+  }
+}

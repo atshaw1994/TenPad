@@ -1,0 +1,244 @@
+﻿<Window x:Class="TenPad.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TenPad" 
+        TextOptions.TextFormattingMode="Display"
+        mc:Ignorable="d"
+        Title="Untitled - TenPad" 
+        Width="640" 
+        Height="250"
+        Loaded="Window_Loaded"
+        AllowsTransparency="True"
+        WindowStyle="None" 
+        Background="Transparent"
+        StateChanged="Window_StateChanged" 
+        SourceInitialized="Window_SourceInitialized">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="51" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <ResourceDictionary>
+            <Path x:Key="ExtendFRPanel_Up" Width="18" Height="18" 
+                    Stroke="#606060" 
+                    StrokeThickness="2"
+                    Data="M4 11 l5 -5 l5 5"/>
+            <Path x:Key="ExtendFRPanel_Dn"
+                    Width="18" Height="18" 
+                    Stroke="#606060" 
+                    StrokeThickness="2"
+                    Data="M4 6 l5 5 l5 -5"/>
+            <LinearGradientBrush x:Key="ResizeGripperForeground" EndPoint="1,0.75" StartPoint="0,0.25">
+                <GradientStop Color="#606060" Offset="0.3"/>
+                <GradientStop Color="#303030" Offset="0.75"/>
+                <GradientStop Color="#202020" Offset="1"/>
+            </LinearGradientBrush>
+            <Style x:Key="ResizeGripStyle1" TargetType="{x:Type ResizeGrip}">
+                <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+                <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ResizeGrip}">
+                            <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                                <Path Data="M 9,0 L 11,0 L 11,11 L 0,11 L 0,9 L 3,9 L 3,6 L 6,6 L 6,3 L 9,3 z" HorizontalAlignment="Right" Margin="0,0,2,2" VerticalAlignment="Bottom">
+                                    <Path.Fill>
+                                        <DrawingBrush TileMode="Tile" ViewboxUnits="Absolute" Viewbox="0,0,3,3" ViewportUnits="Absolute" Viewport="0,0,3,3">
+                                            <DrawingBrush.Drawing>
+                                                <DrawingGroup>
+                                                    <GeometryDrawing Brush="{StaticResource ResizeGripperForeground}" Geometry="M 0,0 L 2,0 L 2,2 L 0,2 z "/>
+                                                </DrawingGroup>
+                                            </DrawingBrush.Drawing>
+                                        </DrawingBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Border x:Name="baseWindow_Border" Style="{DynamicResource WindowMainPanelStyle}">
+        <Grid x:Name="baseWindow_Grid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="1"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="32"/>
+                <RowDefinition/>
+                <RowDefinition Height="1"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="baseWindow_CaptionBar" Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="45"/>
+                </Grid.ColumnDefinitions>
+                <Image Source="TenPad.ico" Width="22" Height="22"/>
+                <TextBlock Text="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" Grid.Column="1" Foreground="{DynamicResource Global.Foreground}" FontSize="14" VerticalAlignment="Center" Margin="8,0,8,0"/>
+                <Button x:Name="CaptionBar_MinimizeButton" Style="{DynamicResource TitleBarButtonStyle}" Grid.Column="2" Click="CaptionBar_MinimizeButton_Click">
+                    <Path Data="M18 14 h9" Width="45" Height="29" Stroke="{DynamicResource Global.Foreground}" StrokeThickness="1"/>
+                </Button>
+                <Button x:Name="CaptionBar_MaximizeButton" Style="{DynamicResource TitleBarButtonStyle}" Grid.Column="3" Click="CaptionBar_RestoreButton_Click">
+                    <Path Data="M17,9 h9 v9 h-9 Z" Width="45" Height="29" Stroke="{DynamicResource Global.Foreground}" StrokeThickness="1"/>
+                </Button>
+                <Button x:Name="CaptionBar_RestoreButton" Style="{DynamicResource TitleBarButtonStyle}" Grid.Column="3" Visibility="Collapsed" Click="CaptionBar_RestoreButton_Click">
+                    <Path Data="M 17,11 h7 v7 h-7Z M19,11 v-2 h7 v7 h-2" Width="45" Height="30" Stroke="{DynamicResource Global.Foreground}" StrokeThickness="1"/>
+                </Button>
+                <Button x:Name="CaptionBar_CloseButton" Style="{DynamicResource TitleBarCloseButtonStyle}" Grid.Column="4" Click="CaptionBar_CloseButton_Click">
+                    <Path Data="M17,9 L26,18 M17,18 L26,9" Width="45" Height="30" Stroke="{DynamicResource Global.Foreground}" StrokeThickness="1"/>
+                </Button>
+            </Grid>
+            <Grid x:Name="baseWindow_Content" Margin="-1" Grid.Row="2" Grid.Column="1" Background="{DynamicResource Global.ContentArea.Background}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="22"/>
+                    <RowDefinition/>
+                    <RowDefinition x:Name="StatusBarRow" Height="0"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="baseMenuBar_Bkg" Background="{DynamicResource CaptionBar.Active.Background}" BorderBrush="{DynamicResource Textbox.Static.Border}" BorderThickness="0,0,0,1"/>
+                <Grid x:Name="baseMenuBar" HorizontalAlignment="Left" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Menu x:Name="MenuBar" Height="18" Background="Transparent" VerticalAlignment="Center">
+                        <MenuItem Header="File" Style="{DynamicResource menuParentStyle}" ItemContainerStyle="{DynamicResource MenuItemStyle1}" Template="{DynamicResource MenuItemControlTemplate2}">
+                            <MenuItem Header="New" Click="MenuBar_New_Click"/>
+                            <MenuItem Header="New Window" Click="MenuBar_NewWindow_Click"/>
+                            <MenuItem Header="Open..." Click="MenuBar_Open_Click"/>
+                            <MenuItem Header="Save" Click="MenuBar_Save_Click"/>
+                            <MenuItem Header="Save As..." Click="MenuBar_SaveAs_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Page Setup..." Click="MenuBar_PageSetup_Click"/>
+                            <MenuItem Header="Print..." Click="MenuBar_Print_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Close" Click="MenuBar_Close_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Edit"  Style="{DynamicResource menuParentStyle}"  ItemContainerStyle="{DynamicResource MenuItemStyle1}" Template="{DynamicResource MenuItemControlTemplate2}">
+                            <MenuItem Header="Undo"/>
+                            <Separator/>
+                            <MenuItem Header="Cut" Click="MenuItem_Cut_Click"/>
+                            <MenuItem x:Name="MenuItem_Copy" Header="Copy" Click="MenuItem_Copy_Click"/>
+                            <MenuItem x:Name="MenuItem_Paste" Header="Paste" Click="MenuItem_Paste_Click"/>
+                            <MenuItem x:Name="MenuItem_Delete" Header="Delete" Click="MenuItem_Delete_Click"/>
+                            <Separator/>
+                            <MenuItem x:Name="MenuItem_Search_Online" Header="Search Online" Click="MenuItem_Search_Online_Click"/>
+                            <MenuItem x:Name="MenuItem_Find" Header="Find" Click="MenuItem_Find_Click"/>
+                            <MenuItem x:Name="MenuItem_Find_Replace" Header="Find/Replace" Click="MenuItem_Find_Replace_Click"/>
+                            <MenuItem x:Name="MenuItem_GoTo" Header="Go To..." Click="MenuItem_GoTo_Click"/>
+                            <Separator/>
+                            <MenuItem x:Name="MenuItem_SelectAll" Header="Select All" Click="MenuItem_SelectAll_Click"/>
+                            <MenuItem x:Name="MenuItem_TimeDate" Header="Time And Date" Click="MenuItem_TimeDate_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Format"  Style="{DynamicResource menuParentStyle}"  ItemContainerStyle="{DynamicResource MenuItemStyle1}" Template="{DynamicResource MenuItemControlTemplate2}">
+                            <MenuItem x:Name="MenuItem_WordWrap" Header="Word Wrap" IsCheckable="True" Checked="MenuItem_WordWrap_Checked" Unchecked="MenuItem_WordWrap_Unchecked"/>
+                            <MenuItem x:Name="MenuItem_Font" Header="Font..." Click="MenuItem_Font_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="View" Style="{DynamicResource menuParentStyle}"  ItemContainerStyle="{DynamicResource MenuItemStyle1}" Template="{DynamicResource MenuItemControlTemplate2}">
+                            <MenuItem x:Name="MenuItem_ZoomIn" Header="Zoom In" Click="MenuItem_ZoomIn_Click"/>
+                            <MenuItem x:Name="MenuItem_ZoomOut" Header="Zoom Out" Click="MenuItem_ZoomOut_Click" />
+                            <MenuItem x:Name="MenuItem_ZoomReset" Header="Zoom Reset" Click="MenuItem_ZoomReset_Click" />
+                            <Separator/>
+                            <MenuItem x:Name="MenuBar_StatusBar" Header="Status Bar" IsCheckable="True" IsChecked="False" Click="MenuBar_StatusBar_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Help"  Style="{DynamicResource menuParentStyle}"  ItemContainerStyle="{DynamicResource MenuItemStyle1}" Template="{DynamicResource MenuItemControlTemplate2}">
+                            <MenuItem x:Name="MenuItem_ViewHelp" Header="View Help" Click="MenuItem_ViewHelp_Click"/>
+                            <MenuItem x:Name="MenuItem_About" Header="About TenPad" Click="MenuItem_About_Click"/>
+                        </MenuItem>
+                    </Menu>
+                </Grid>
+                <RichTextBox x:Name="baseTextBox" Grid.Row="1" Style="{DynamicResource RichTextBoxStyle}">
+                    <RichTextBox.Document>
+                        <FlowDocument>
+                            <Paragraph>
+                                Notepad is a text editor, i.e., an app specialized in editing plain text. It can edit text files (bearing the ".txt" filename extension) and compatible formats, such as batch files, INI files, and log files. Notepad can read and write plain texts encoded in ASCII, UTF-8, and UTF-16. It supports both left-to-right and right-to-left based languages. Notepad offers only the most basic text manipulation functions, such as finding and replacing text. Until Windows ME, there were almost no keyboard shortcuts and no line-counting feature. Starting with Windows 2000, shortcuts for common commands like "New", "Open", and "Save" were added, as well as a status bar with a line counter (available only when word-wrap is disabled). Before Windows 10 version 1809, Notepad could not properly interpret Unix-style or Mac-style newline characters. Windows 10 version 1809 also introduced the Ctrl+← Backspace keyboard shortcut (deletes the previous word), zoom functionality, the ability to zoom in and out, and the "Search with Bing" function. Improving performance has been the main focus of Notepad's development. As part of this effort, Notepad is capable of reading text files even when other apps have acquired a range-based lock on the file. On Windows 95 and earlier, Notepad renders text files in the Fixedsys font. Starting with Windows NT 4.0 and Windows 98, it allows users to choose their own font to display the text. They cannot, however, select individual parts of the text and change their fonts. Its default font changed to Lucida Console on Windows 2000, and Consolas on Windows 8. Notepad can print files. It allows customizing headers, footers, and margins before printing. The date, file name, and other information can be placed in the headers and footers with various codes consisting of an ampersand followed by a letter. Notepad accepts text from the Windows clipboard, but only in the CF_TEXT format. It strips the pasted text of any embedded font and style information. One could temporarily paste formatted text into Notepad, then immediately copy it again to obtain the raw text. The app also has a simple logging function. Each time it opens a file with ".LOG" on its first line, the app inserts a timestamp on the file's last line
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox.Document>
+                </RichTextBox>
+                <Border x:Name="FindReplacePopup" Grid.Row="1" Background="{DynamicResource FindReplacePopup.Background}" Margin="24,4" BorderBrush="{DynamicResource FindReplacePopup.Border}" BorderThickness="1" CornerRadius="4" Width="350" Height="25" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="24"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="23"/>
+                            <RowDefinition x:Name="ReplaceRow" Height="0"/>
+                        </Grid.RowDefinitions>
+                        <Button x:Name="ExtendFindPanel" Click="ExtendFindPanel_Click" Content="{StaticResource ExtendFRPanel_Dn}" Style="{DynamicResource GoToPanelButtonBase}"/>
+                        <TextBox x:Name="FindQuery" Grid.Column="1" Height="18" Style="{DynamicResource TextboxStyle}"/>
+                        <Button x:Name="PerformQuery" Grid.Column="2" Click="PerformQuery_Click" Style="{DynamicResource GoToPanelButtonBase}">
+                            <Path Width="18" Height="18" Stroke="{DynamicResource Global.Glyph.Stroke}" StrokeThickness="2" Data="M8 5 l4 4 l-4 4"/>
+                        </Button>
+                        <Button x:Name="CloseFRPanel" Grid.Column="3" Click="CloseFRPanel_Click" Style="{DynamicResource GoToPanelButtonBase}">
+                            <Path Width="18" Height="18" Stroke="{DynamicResource Global.Glyph.Stroke}" StrokeThickness="2" Data="M5 5 l7 7 M12 5 l-7 7"/>
+                        </Button>
+                        <TextBox x:Name="ReplaceQuery" Grid.Column="1" Grid.Row="1" Height="18" Style="{DynamicResource TextboxStyle}"/>
+                    </Grid>
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="borderTransform"/>
+                    </Border.RenderTransform>
+                </Border>
+                <Border x:Name="GoToPopup" Grid.Row="1" Background="{DynamicResource FindReplacePopup.Background}" Margin="24,4" BorderBrush="{DynamicResource FindReplacePopup.Border}" BorderThickness="1" CornerRadius="4" Width="225" Height="25" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="24"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Line Number:" Margin="8,0" Foreground="{DynamicResource Global.Foreground}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="GoToLineNumber" Grid.Column="1" Height="20" Style="{DynamicResource TextboxStyle}"/>
+                        <Button x:Name="PerformGoTo" Style="{DynamicResource GoToPanelButtonBase}" Grid.Column="2" Click="PerformGoTo_Click">
+                            <Path Width="18" Height="18" Stroke="{DynamicResource Global.Glyph.Stroke}" StrokeThickness="2" Data="M8 5 l4 4 l-4 4"/>
+                        </Button>
+                        <Button x:Name="CloseGTPanel" Style="{DynamicResource GoToPanelButtonBase}" Grid.Column="3" Click="CloseGTPanel_Click">
+                            <Path Width="18" Height="18" Stroke="{DynamicResource Global.Glyph.Stroke}" StrokeThickness="2" Data="M5 5 l7 7 M12 5 l-7 7"/>
+                        </Button>
+                    </Grid>
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="GTborderTransform"/>
+                    </Border.RenderTransform>
+                </Border>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.ColumnSpan="9" Background="#171717" BorderBrush="#a0a0a0" BorderThickness="0,1,0,0"/>
+                    <TextBlock x:Name="CaretPositionDisplay" VerticalAlignment="Center" Margin="16,0,16,0" Foreground="#4d4d4d" Text="Line 0, Col 0" Grid.Column="1"/>
+                    <Separator Grid.Column="1" HorizontalAlignment="Right">
+                        <Separator.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </Separator.LayoutTransform>
+                    </Separator>
+                    <TextBlock x:Name="ZoomDisplay" VerticalAlignment="Center" Margin="16,0,16,0" Foreground="#4d4d4d" Text="100%" Grid.Column="2"/>
+                    <Separator Grid.Column="2" HorizontalAlignment="Right">
+                        <Separator.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </Separator.LayoutTransform>
+                    </Separator>
+                    <TextBlock x:Name="BreakFormatDisplay" VerticalAlignment="Center" Margin="16,0,16,0" Foreground="#4d4d4d" Text="Windows (CLRF)" Grid.Column="3"/>
+                    <Separator Grid.Column="3" HorizontalAlignment="Right">
+                        <Separator.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </Separator.LayoutTransform>
+                    </Separator>
+                    <TextBlock x:Name="EncodingDisplay" VerticalAlignment="Center" Margin="16,0,16,0" Foreground="#4d4d4d" Text="UTF-8 with BOM" Grid.Column="4"/>
+                    <ResizeGrip Grid.Column="5"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+    
+</Window>
